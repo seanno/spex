@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SPEX — Launching…</title>
+    <script src="https://cdn.jsdelivr.net/npm/fhirclient/build/fhir-client.min.js"></script>
+  </head>
+  <body>
+    <script>
+      const params = new URLSearchParams(document.location.search);
+      const client = params.get('client');
+
+      // Compute redirect URI as the directory root (e.g. https://host:port/)
+      const ichQuestion = window.location.href.indexOf('?');
+      const url = ichQuestion === -1
+        ? window.location.href
+        : window.location.href.substring(0, ichQuestion);
+      const redirectUri = url.substring(0, url.lastIndexOf('/') + 1);
+
+      const scope =
+        'openid launch/patient profile ' +
+        'patient/*.read patient/*.search';
+
+      // iss is read automatically by fhirclient from the URL query string
+      FHIR.oauth2.authorize({
+        clientId: client,
+        redirectUri: redirectUri,
+        scope: scope,
+        pkceMode: 'unsafeV1',
+      });
+    </script>
+  </body>
+</html>
