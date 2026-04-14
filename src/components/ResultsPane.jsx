@@ -1,4 +1,15 @@
-import { Box, Typography, Alert, Paper } from '@mui/material';
+import { Box, Typography, Alert, Paper, IconButton, Tooltip } from '@mui/material';
+import DownloadIcon from '@mui/icons-material/Download';
+
+function downloadJson(data) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'fhir-result.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 export default function ResultsPane({ result, error }) {
   if (!result && !error) {
@@ -20,7 +31,18 @@ export default function ResultsPane({ result, error }) {
   }
 
   return (
-    <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2 }}>
+    <Box sx={{ flexGrow: 1, overflow: 'auto', p: 2, position: 'relative' }}>
+      {result && (
+        <Tooltip title="Download JSON">
+          <IconButton
+            size="small"
+            onClick={() => downloadJson(result)}
+            sx={{ position: 'absolute', top: 16, right: 16, zIndex: 1, bgcolor: '#2d2d2d', color: '#d4d4d4', '&:hover': { bgcolor: '#3d3d3d' } }}
+          >
+            <DownloadIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      )}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
