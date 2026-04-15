@@ -2914,5 +2914,11 @@
     "clientId": "886ee24e-d917-4a4e-b65b-0e640cc04713",
     "label": "Yuma Regional Medical Center",
     "iss": "https://yrmccare1.yumaregional.org/FHIR/api/FHIR/R4/"
+  },
+  {
+    "type": "cerner",
+    "clientId": "8b385569-458f-42ae-be41-d099bc4f1119",
+    "label": "Cerner Sandbox (TEST)",
+    "iss": "https://fhir-myrecord.cerner.com/r4/ec2458f2-1e24-41c8-b71b-0e701af7583d"
   }
 ]

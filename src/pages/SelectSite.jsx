@@ -5,6 +5,7 @@ import {
   Button,
   CircularProgress,
   Container,
+  Divider,
   TextField,
   Typography,
   Alert,
@@ -18,14 +19,20 @@ export default function SelectSite() {
   const [selected, setSelected] = useState(null);
   const [authorizing, setAuthorizing] = useState(false);
   const [error, setError] = useState(null);
+  const savedCustom = (() => { try { return JSON.parse(localStorage.getItem('spex_custom')) ?? {}; } catch { return {}; } })();
+  const [customClientId, setCustomClientId] = useState(savedCustom.clientId ?? '');
+  const [customIss, setCustomIss] = useState(savedCustom.iss ?? '');
+  const [customScope, setCustomScope] = useState(savedCustom.scope ?? 'patient/*.read patient/*.search');
 
   function authorize(site) {
     setAuthorizing(true);
     setError(null);
     setSite(site);
-    const url =
+    let url =
       '/launch.html?client=' + encodeURIComponent(site.clientId) +
       '&iss=' + encodeURIComponent(site.iss);
+    if (site.type) url += '&type=' + encodeURIComponent(site.type);
+    if (site.scope) url += '&scope=' + encodeURIComponent(site.scope);
     window.location.assign(url);
   }
 
@@ -105,6 +112,55 @@ export default function SelectSite() {
         >
           {authorizing ? 'Redirecting to login…' : 'Connect'}
         </Button>
+
+        <Divider>
+          <Typography variant="body2" color="text.secondary">or use a custom server</Typography>
+        </Divider>
+
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            label="Client ID"
+            size="small"
+            value={customClientId}
+            onChange={(e) => setCustomClientId(e.target.value)}
+            disabled={authorizing}
+            fullWidth
+          />
+          <TextField
+            label="ISS URL"
+            size="small"
+            placeholder="https://fhir.example.com/r4"
+            value={customIss}
+            onChange={(e) => setCustomIss(e.target.value)}
+            disabled={authorizing}
+            fullWidth
+          />
+          <TextField
+            label="Scopes"
+            size="small"
+            value={customScope}
+            onChange={(e) => setCustomScope(e.target.value)}
+            disabled={authorizing}
+            fullWidth
+            helperText="openid launch/patient profile are always included"
+          />
+          <Button
+            variant="outlined"
+            size="large"
+            disabled={!customClientId.trim() || !customIss.trim() || authorizing}
+            onClick={() => {
+              const clientId = customClientId.trim();
+              const iss = customIss.trim();
+              const scope = customScope.trim();
+              localStorage.setItem('spex_custom', JSON.stringify({ clientId, iss, scope }));
+              const label = (() => { try { return new URL(iss).hostname; } catch { return iss; } })();
+              authorize({ clientId, iss, label, scope });
+            }}
+            startIcon={authorizing ? <CircularProgress size={18} color="inherit" /> : null}
+          >
+            {authorizing ? 'Redirecting to login…' : 'Connect to custom server'}
+          </Button>
+        </Box>
       </Box>
     </Container>
   );

@@ -16,9 +16,11 @@
         : window.location.href.substring(0, ichQuestion);
       const redirectUri = url.substring(0, url.lastIndexOf('/') + 1);
 
-      const scope =
-        'openid launch/patient profile ' +
-        'patient/*.read patient/*.search';
+      const type = params.get('type');
+      const scopeParam = params.get('scope');
+      const CERNER_SCOPES = 'patient/Appointment.read patient/Binary.read patient/CarePlan.read patient/CareTeam.read patient/Condition.read patient/Consent.read patient/Coverage.read patient/Device.read patient/DiagnosticReport.read patient/DocumentReference.read patient/Encounter.read patient/FamilyMemberHistory.read patient/Goal.read patient/Immunization.read patient/InsurancePlan.read patient/Media.read patient/MedicationAdministration.read patient/MedicationDispense.read patient/MedicationRequest.read patient/NutritionOrder.read patient/Observation.read patient/Patient.read patient/Person.read patient/Procedure.read patient/Provenance.read patient/Questionnaire.read patient/QuestionnaireResponse.read patient/RelatedPerson.read patient/Schedule.read patient/ServiceRequest.read patient/Slot.read patient/Specimen.read';
+      const scope = 'openid launch/patient profile ' +
+        (type === 'cerner' ? CERNER_SCOPES : (scopeParam ?? 'patient/*.read patient/*.search'));
 
       // iss is read automatically by fhirclient from the URL query string
       FHIR.oauth2.authorize({
