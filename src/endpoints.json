@@ -2916,6 +2916,12 @@
     "iss": "https://yrmccare1.yumaregional.org/FHIR/api/FHIR/R4/"
   },
   {
+    "type": "smart",
+    "clientId": "43294215-4555-4ce2-811f-15cfd0fc3ae0",
+    "label": "Smart Launcher (TEST)",
+    "iss": "https://launch.smarthealthit.org/v/r4/sim/WzMsIiIsIiIsIkFVVE8iLDAsMCwwLCIiLCIiLCIiLCIiLCIiLCIiLCIiLDAsMSwiIl0/fhir"
+  },
+  {
     "type": "cerner",
     "clientId": "8b385569-458f-42ae-be41-d099bc4f1119",
     "label": "Cerner Sandbox (TEST)",
