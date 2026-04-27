@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Autocomplete,
   Box,
@@ -11,7 +11,6 @@ import {
   Alert,
 } from '@mui/material';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
-import endpoints from '../endpoints.json';
 import { getSite, setSite } from '../lib/storage';
 
 export default function SelectSite() {
@@ -19,6 +18,15 @@ export default function SelectSite() {
   const [selected, setSelected] = useState(null);
   const [authorizing, setAuthorizing] = useState(false);
   const [error, setError] = useState(null);
+  const [endpoints, setEndpoints] = useState([]);
+  const [loadingEndpoints, setLoadingEndpoints] = useState(true);
+
+  useEffect(() => {
+    fetch('/endpoints.json')
+      .then((r) => r.json())
+      .then((data) => setEndpoints(data))
+      .finally(() => setLoadingEndpoints(false));
+  }, []);
   const savedCustom = (() => { try { return JSON.parse(localStorage.getItem('spex_custom')) ?? {}; } catch { return {}; } })();
   const [customClientId, setCustomClientId] = useState(savedCustom.clientId ?? '');
   const [customIss, setCustomIss] = useState(savedCustom.iss ?? '');
@@ -85,20 +93,34 @@ export default function SelectSite() {
         <Autocomplete
           options={endpoints}
           getOptionLabel={(opt) => opt.label}
-          filterOptions={(opts, { inputValue }) =>
-            opts.filter((o) =>
-              o.label.toLowerCase().includes(inputValue.toLowerCase())
-            )
-          }
+          filterOptions={(opts, { inputValue }) => {
+            if (!inputValue) return [];
+            const q = inputValue.toLowerCase();
+            const results = [];
+            for (let i = 0; i < opts.length && results.length < 50; i++) {
+              if (opts[i].label.toLowerCase().includes(q)) results.push(opts[i]);
+            }
+            return results;
+          }}
           value={selected}
           onChange={(_, val) => setSelected(val)}
-          disabled={authorizing}
+          disabled={authorizing || loadingEndpoints}
+          loading={loadingEndpoints}
           renderInput={(params) => (
             <TextField
               {...params}
               label="Search for your institution"
-              placeholder="Type to search..."
+              placeholder={loadingEndpoints ? 'Loading sites…' : 'Type to search...'}
               variant="outlined"
+              InputProps={{
+                ...params.InputProps,
+                endAdornment: (
+                  <>
+                    {loadingEndpoints ? <CircularProgress size={18} /> : null}
+                    {params.InputProps.endAdornment}
+                  </>
+                ),
+              }}
             />
           )}
         />
